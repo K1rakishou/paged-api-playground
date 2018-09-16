@@ -18,7 +18,19 @@ class DataGenerator(
   val random: Random
 ) {
 
-  private val photosInnerDirectory: File = File("$photosDirectory\\photos")
+  private val photosInnerDirectory: File
+
+  init {
+    if (!File(photosDirectory).isDirectory) {
+      throw RuntimeException("Path $photosDirectory is not a directory!")
+    }
+
+    photosInnerDirectory = File("$photosDirectory\\photos")
+
+    if (!photosInnerDirectory.isDirectory) {
+      throw RuntimeException("Path $photosDirectory is not a directory!")
+    }
+  }
 
   fun generate() {
     try {
@@ -29,9 +41,6 @@ class DataGenerator(
       photosInnerDirectory.mkdirs()
 
       createDatabase()
-
-      //wait some time for the directory to be recreated
-      Thread.sleep(1000)
 
       generate(
         usersCount = 10,
@@ -152,7 +161,7 @@ class DataGenerator(
 
         for (photoIndex in 0L until photosToGenerate) {
           val photoNameLen = Math.abs(random.nextInt(15)) + 5
-          val photoName = StringUtils.generateRandomString(photoNameLen)
+          val photoName = StringUtils.generateRandomString(photoNameLen) + ".png"
 
           val photoId = createPhoto(connection, Photo(0, userId, photoName))
           if (photoId == -1L) {

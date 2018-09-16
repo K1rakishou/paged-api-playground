@@ -1,24 +1,16 @@
 package app
 
-import data.repository.Repository
 import handler.IndexPageHandler
 import handler.MainPageHandler
 import handler.PhotosHandler
-import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Dispatchers
-import service.DataGenerator
-import service.HikariService
-import service.JsonConverter
+import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.CoroutineContext
 
 class Verticle(
-  private val hikariService: HikariService,
-  private val repository: Repository,
-  private val dataGenerator: DataGenerator,
-  private val jsonConverter: JsonConverter,
   private val mainPageHandler: MainPageHandler,
   private val indexPageHandler: IndexPageHandler,
   private val photosHandler: PhotosHandler
@@ -32,10 +24,26 @@ class Verticle(
 
     val server = vertx.createHttpServer()
     val router = Router.router(vertx).apply {
-      get("/").handler { context -> mainPageHandler.handleRequest(HttpMethod.GET, context) }
-      get("/index.html").handler { context -> indexPageHandler.handleRequest(HttpMethod.GET, context) }
-      get("/photos/:last_photo_id").handler { context -> photosHandler.handleRequest(HttpMethod.GET, context) }
-      get("/photos").handler { context -> photosHandler.handleRequest(HttpMethod.GET, context) }
+      get("/").handler { context ->
+        println("get /")
+        launch { mainPageHandler.rerouteToIndexPage(context) }
+      }
+      get("/index.html").handler { context ->
+        println("get /index.html")
+        launch { indexPageHandler.showIndexPage(context) }
+      }
+      get("/photos/:last_photo_id").handler { context ->
+        println("get /photos/:last_photo_id")
+        launch { photosHandler.handleGetPageOfPhotos(context) }
+      }
+      get("/photos/:last_photo_id/:photos_per_page").handler { context ->
+        println("get /photos/:last_photo_id/:photos_per_page")
+        launch { photosHandler.handleGetPageOfPhotos(context) }
+      }
+      get("/photos").handler { context ->
+        println("get /photos")
+        launch { photosHandler.handleGetAllPhotos(context) }
+      }
     }
 
     server

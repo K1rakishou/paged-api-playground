@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
   }
 
   val gson = GsonBuilder()
-    .setPrettyPrinting() //TODO: delet
+    .setPrettyPrinting() //TODO: deletme
     .create()
 
   val hikariService = HikariService()
@@ -34,10 +34,6 @@ fun main(args: Array<String>) {
   dataGenerator.generate()
 
   val verticle = Verticle(
-    hikariService,
-    repository,
-    dataGenerator,
-    jsonConverter,
     mainPageHandler,
     indexPageHandler,
     photosHandler

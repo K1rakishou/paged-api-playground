@@ -5,7 +5,10 @@ import io.vertx.ext.web.RoutingContext
 
 class MainPageHandler : BaseHandler(HttpMethod.GET) {
 
-  override suspend fun handleGet(context: RoutingContext) {
-    super.handleGet(context)
+  suspend fun rerouteToIndexPage(routingContext: RoutingContext) {
+    handleExceptions(routingContext) { context ->
+      context
+        .reroute(HttpMethod.GET, "/index.html")
+    }
   }
 }

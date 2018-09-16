@@ -14,17 +14,16 @@ class Repository(
   override val coroutineContext: CoroutineContext
     get() = Dispatchers.IO
 
-  private val itemsPerPage = 20
   private val mutex = Mutex()
 
-  suspend fun getPageOfPhotos(lastPhotoId: Long): Deferred<List<Photo>> {
-    return async {
+  suspend fun getPageOfPhotos(lastPhotoId: Long, photosPerPage: Int): Deferred<List<Photo>> {
+    return async(coroutineContext) {
       return@async mutex.withLock {
         return@withLock hikariService.getConnection().use { connection ->
           return@use connection.prepareStatement("SELECT * FROM photos WHERE photo_id > ? LIMIT ?").use { statement ->
             val photos = mutableListOf<Photo>()
             statement.setLong(1, lastPhotoId)
-            statement.setInt(2, itemsPerPage)
+            statement.setInt(2, photosPerPage)
 
             statement.executeQuery().use { rs ->
               while (rs.next()) {
@@ -44,7 +43,7 @@ class Repository(
   }
 
   suspend fun getAllPhotos(): Deferred<List<Photo>> {
-    return async {
+    return async(coroutineContext) {
       return@async mutex.withLock {
         return@withLock hikariService.getConnection().use { connection ->
           return@use connection.prepareStatement("SELECT * FROM photos").use { statement ->

@@ -7,13 +7,13 @@ class IndexPageHandler : BaseHandler(HttpMethod.GET) {
 
   private val indexHtmlPath = Thread.currentThread().contextClassLoader.getResource("index.html").file
 
-  override suspend fun handleGet(context: RoutingContext) {
-    super.handleGet(context)
-
-    context.response()
-      .putHeader("content-type", "text/html;charset=utf-8")
-      .setStatusCode(200)
-      .sendFile(indexHtmlPath)
-      .end()
+  suspend fun showIndexPage(routingContext: RoutingContext) {
+    handleExceptions(routingContext) { context ->
+      context.response()
+        .putHeader("content-type", "text/html;charset=utf-8")
+        .setStatusCode(200)
+        .sendFile(indexHtmlPath)
+        .end()
+    }
   }
 }

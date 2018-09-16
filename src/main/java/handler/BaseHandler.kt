@@ -23,45 +23,6 @@ abstract class BaseHandler(
     }
   }
 
-  fun handleRequest(httpMethod: HttpMethod, context: RoutingContext) {
-    launch {
-      try {
-        when (httpMethod) {
-          HttpMethod.GET,
-          HttpMethod.POST,
-          HttpMethod.PUT,
-          HttpMethod.DELETE -> {
-            if (!httpMethods.contains(httpMethod)) {
-              sendHttpMethodNotSupportedResponse(context)
-              return@launch
-            }
-
-            when (httpMethod) {
-              HttpMethod.GET -> handleGet(context)
-              HttpMethod.POST -> handlePost(context)
-              HttpMethod.PUT -> handlePut(context)
-              HttpMethod.DELETE -> handleDelete(context)
-              else -> throw IllegalArgumentException("Unknown httpMethod $httpMethod")
-            }
-          }
-
-          HttpMethod.OPTIONS,
-          HttpMethod.HEAD,
-          HttpMethod.TRACE,
-          HttpMethod.CONNECT,
-          HttpMethod.PATCH,
-          HttpMethod.OTHER -> {
-            sendHttpMethodNotSupportedResponse(context)
-          }
-        }
-      } catch (error: Throwable) {
-        error.printStackTrace()
-
-        sendErrorResponse(error, context)
-      }
-    }
-  }
-
   private fun sendErrorResponse(error: Throwable, context: RoutingContext) {
     val errorMessage = error.message ?: "No error message"
 
@@ -98,19 +59,26 @@ abstract class BaseHandler(
       .end()
   }
 
-  protected open suspend fun handleGet(context: RoutingContext) {
-
+  protected fun send200Ok(context: RoutingContext) {
+    context
+      .response()
+      .setStatusCode(HttpResponseStatus.OK.code())
+      .end()
   }
 
-  protected open suspend fun handlePost(context: RoutingContext) {
-
+  suspend fun dummyHandler(routingContext: RoutingContext) {
+    handleExceptions(routingContext) { context ->
+      send200Ok(context)
+    }
   }
 
-  protected open suspend fun handlePut(context: RoutingContext) {
+  protected suspend fun handleExceptions(context: RoutingContext, block: suspend (context: RoutingContext) -> Unit) {
+    try {
+      block(context)
+    } catch (error: Throwable) {
+      error.printStackTrace()
 
-  }
-
-  protected open suspend fun handleDelete(context: RoutingContext) {
-
+      sendErrorResponse(error, context)
+    }
   }
 }
