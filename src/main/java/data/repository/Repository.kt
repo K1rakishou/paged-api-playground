@@ -1,5 +1,6 @@
 package data.repository
 
+import data.model.Comment
 import data.model.Photo
 import data.model.User
 import kotlinx.coroutines.experimental.Deferred
@@ -93,6 +94,54 @@ class Repository(
         }
 
         return@use users
+      }
+    }
+  }
+
+  /**
+   * Comments
+   * */
+
+  suspend fun getAllComments(): Deferred<List<Comment>> {
+    return repoAsync { connection ->
+      connection.prepareStatement("SELECT * FROM comments").use { statement ->
+        val comments = mutableListOf<Comment>()
+
+        statement.executeQuery().use { rs ->
+          while (rs.next()) {
+            comments += Comment(
+              rs.getLong("comment_id"),
+              rs.getLong("user_id"),
+              rs.getLong("photo_id"),
+              rs.getString("message")
+            )
+          }
+        }
+
+        return@use comments
+      }
+    }
+  }
+
+  suspend fun getPageOfComments(lastCommentId: Long, commentsPerPage: Int): Deferred<List<Comment>> {
+    return repoAsync { connection ->
+      connection.prepareStatement("SELECT * FROM comments WHERE comment_id > ? LIMIT ?").use { statement ->
+        val comments = mutableListOf<Comment>()
+        statement.setLong(1, lastCommentId)
+        statement.setInt(2, commentsPerPage)
+
+        statement.executeQuery().use { rs ->
+          while (rs.next()) {
+            comments += Comment(
+              rs.getLong("comment_id"),
+              rs.getLong("user_id"),
+              rs.getLong("photo_id"),
+              rs.getString("message")
+            )
+          }
+        }
+
+        return@use comments
       }
     }
   }

@@ -14,15 +14,11 @@ abstract class BaseRepository(
   override val coroutineContext: CoroutineContext
     get() = Dispatchers.IO
 
-  protected val mutex = Mutex()
-
   protected suspend fun <T> repoAsync(block: (Connection) -> T): Deferred<T> {
     return async(coroutineContext) {
-        return@async hikariService.getConnection().use { connection ->
-          return@use mutex.withLock {
-            return@withLock block(connection)
-          }
-        }
+      return@async hikariService.getConnection().use { connection ->
+        return@use block(connection)
       }
+    }
   }
 }

@@ -2,10 +2,7 @@ package app
 
 import com.google.gson.GsonBuilder
 import data.repository.Repository
-import handler.IndexPageHandler
-import handler.MainPageHandler
-import handler.PhotosHandler
-import handler.UsersHandler
+import handler.*
 import io.vertx.core.Vertx
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import service.DataGenerator
@@ -37,6 +34,7 @@ fun main(args: Array<String>) {
   val indexPageHandler = IndexPageHandler()
   val photosHandler = PhotosHandler(repository, jsonConverter)
   val usersHandler = UsersHandler(repository, jsonConverter)
+  val commentsHandler = CommentsHandler(repository, jsonConverter)
 
   val time = measureTimeMillis {
     dataGenerator.generate()
@@ -48,7 +46,8 @@ fun main(args: Array<String>) {
     mainPageHandler,
     indexPageHandler,
     photosHandler,
-    usersHandler
+    usersHandler,
+    commentsHandler
   )
 
   Vertx.vertx().deployVerticle(verticle) { result ->
@@ -63,8 +62,13 @@ fun main(args: Array<String>) {
 
       println("- User commands")
       println("Get All Users - http://127.0.0.1:8080/api/v1/users")
-      println("Get page of users starting from a users with id = n + 1 - http://127.0.0.1:8080/api/v1/users/1")
+      println("Get page of users starting from a user with id = n + 1 - http://127.0.0.1:8080/api/v1/users/1")
       println("Get page of users (n count when n max is UsersHandler.defaultUsersPerPage) starting from a user with id = m + 1 - http://127.0.0.1:8080/api/v1/users/1/5")
+
+      println("- Comment commands")
+      println("Get All Comments - http://127.0.0.1:8080/api/v1/comments")
+      println("Get page of comments starting from a comment with id = n + 1 - http://127.0.0.1:8080/api/v1/comments/100")
+      println("Get page of comments (n count when n max is CommentsHandler.defaultCommentsPerPage) starting from a comment with id = m + 1 - http://127.0.0.1:8080/api/v1/comments/100/50")
 
       println("\n\n")
     } else {

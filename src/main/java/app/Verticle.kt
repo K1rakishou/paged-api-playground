@@ -1,25 +1,24 @@
 package app
 
-import handler.IndexPageHandler
-import handler.MainPageHandler
-import handler.PhotosHandler
+import handler.*
+import handler.CommentsHandler.Companion.COMMENTS_PER_PAGE_PARAM
+import handler.CommentsHandler.Companion.LAST_COMMENT_ID_PARAM
 import handler.PhotosHandler.Companion.LAST_PHOTO_ID_PARAM
 import handler.PhotosHandler.Companion.PHOTOS_PER_PAGE_PARAM
-import handler.UsersHandler
 import handler.UsersHandler.Companion.LAST_USER_ID_PARAM
 import handler.UsersHandler.Companion.USERS_PER_PAGE_PARAM
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.CoroutineContext
 
 class Verticle(
   private val mainPageHandler: MainPageHandler,
   private val indexPageHandler: IndexPageHandler,
   private val photosHandler: PhotosHandler,
-  private val usersHandler: UsersHandler
+  private val usersHandler: UsersHandler,
+  private val commentsHandler: CommentsHandler
 ) : CoroutineVerticle(), CoroutineScope {
 
   override val coroutineContext: CoroutineContext
@@ -72,6 +71,22 @@ class Verticle(
             usersHandler.handleGetPageOfUsers(context)
           }
         }) // /api/v1/users
+
+        // /api/v1/comments
+        routerV1.mountSubRouter("/comments", Router.router(vertx).also { commentsRouter ->
+          commentsRouter.get("/").handler { context ->
+            println("get /comments")
+            commentsHandler.handleGetAllComments(context)
+          }
+          commentsRouter.get("/:$LAST_COMMENT_ID_PARAM").handler { context ->
+            println("get /comments/:$LAST_COMMENT_ID_PARAM")
+            commentsHandler.handleGetPageOfComments(context)
+          }
+          commentsRouter.get("/:$LAST_COMMENT_ID_PARAM/:$COMMENTS_PER_PAGE_PARAM").handler { context ->
+            println("get /comments/:$LAST_COMMENT_ID_PARAM/:COMMENTS_PER_PAGE_PARAM")
+            commentsHandler.handleGetPageOfComments(context)
+          }
+        }) // /api/v1/comments
 
       }) // /api/v1
     }
