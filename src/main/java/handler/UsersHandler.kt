@@ -9,7 +9,7 @@ class UsersHandler(
   private val jsonConverter: JsonConverter
 ) : BaseHandler() {
 
-  private val defaultUsersPerPage = 20
+  private val defaultUsersPerPage = 10
   private val maxUsersPerPage = 100
 
   fun handleGetPageOfUsers(routingContext: RoutingContext) {
@@ -35,7 +35,7 @@ class UsersHandler(
       val usersPerPage = try {
         usersPerPageParam
           ?.toInt()
-          ?.coerceIn(defaultUsersPerPage, maxUsersPerPage) ?: defaultUsersPerPage
+          ?.coerceIn(0, maxUsersPerPage) ?: defaultUsersPerPage
       } catch (error: NumberFormatException) {
         defaultUsersPerPage
       }

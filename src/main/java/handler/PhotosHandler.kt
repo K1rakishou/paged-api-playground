@@ -36,7 +36,7 @@ class PhotosHandler(
       val photosPerPage = try {
         photosPerPageParam
           ?.toInt()
-          ?.coerceIn(defaultPhotosPerPage, maxPhotosPerPage) ?: defaultPhotosPerPage
+          ?.coerceIn(0, maxPhotosPerPage) ?: defaultPhotosPerPage
       } catch (error: NumberFormatException) {
         defaultPhotosPerPage
       }

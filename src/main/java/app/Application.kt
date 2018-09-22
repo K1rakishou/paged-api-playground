@@ -13,6 +13,7 @@ import service.HikariService
 import service.JsonConverter
 import java.util.*
 import java.util.concurrent.Executors
+import kotlin.system.measureTimeMillis
 
 fun main(args: Array<String>) {
   if (args.size != 1) {
@@ -37,7 +38,11 @@ fun main(args: Array<String>) {
   val photosHandler = PhotosHandler(repository, jsonConverter)
   val usersHandler = UsersHandler(repository, jsonConverter)
 
-  dataGenerator.generate()
+  val time = measureTimeMillis {
+    dataGenerator.generate()
+  }
+
+  println("Data generation done. Time spent: ${time / 1000L} seconds")
 
   val verticle = Verticle(
     mainPageHandler,
@@ -50,9 +55,16 @@ fun main(args: Array<String>) {
     if (result.succeeded()) {
       println("Server has started!\n\n")
       println("List of Commands: ")
-      println("Get All Photos - http://127.0.0.1:8080/photos")
-      println("Get page of photos starting from a photo with id = n + 1 - http://127.0.0.1:8080/photos/10")
-      println("Get page of photos (n count when n max is PhotosHandler.defaultPhotosPerPage) starting from a photo with id = m + 1 - http://127.0.0.1:8080/photos/10/5")
+
+      println("- Photo commands")
+      println("Get All Photos - http://127.0.0.1:8080/api/v1/photos")
+      println("Get page of photos starting from a photo with id = n + 1 - http://127.0.0.1:8080/api/v1/photos/10")
+      println("Get page of photos (n count when n max is PhotosHandler.defaultPhotosPerPage) starting from a photo with id = m + 1 - http://127.0.0.1:8080/api/v1/photos/10/5")
+
+      println("- User commands")
+      println("Get All Users - http://127.0.0.1:8080/api/v1/users")
+      println("Get page of users starting from a users with id = n + 1 - http://127.0.0.1:8080/api/v1/users/1")
+      println("Get page of users (n count when n max is UsersHandler.defaultUsersPerPage) starting from a user with id = m + 1 - http://127.0.0.1:8080/api/v1/users/1/5")
     } else {
       println("Could not start server")
       result.cause().printStackTrace()

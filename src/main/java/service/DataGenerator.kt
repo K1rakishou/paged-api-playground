@@ -2,7 +2,6 @@ package service
 
 import data.model.Comment
 import data.model.Photo
-import data.repository.Repository
 import util.StringUtils
 import java.awt.image.BufferedImage
 import java.io.File
@@ -47,6 +46,7 @@ class DataGenerator(
         photosPerUserMax = 20,
         commentsPerUserMax = 20
       )
+
     } catch (error: Throwable) {
       throw RuntimeException(error)
     }

@@ -41,10 +41,8 @@ class Verticle(
 
       // /api/v1
       baseRouter.mountSubRouter("/api/v1", Router.router(vertx).also { routerV1 ->
-
         // /api/v1/photos
         routerV1.mountSubRouter("/photos", Router.router(vertx).also { photosRouter ->
-
           photosRouter.get("/").handler { context ->
             println("get /photos")
             photosHandler.handleGetAllPhotos(context)
@@ -57,12 +55,10 @@ class Verticle(
             println("get /photos/:$LAST_PHOTO_ID_PARAM/:$PHOTOS_PER_PAGE_PARAM")
             photosHandler.handleGetPageOfPhotos(context)
           }
-
-        })
+        }) // /api/v1/photos
 
         // /api/v1/users
         routerV1.mountSubRouter("/users", Router.router(vertx).also { usersRouter ->
-
           usersRouter.get("/").handler { context ->
             println("get /users")
             usersHandler.handleGetAllUsers(context)
@@ -75,9 +71,9 @@ class Verticle(
             println("get /users/:$LAST_USER_ID_PARAM/:$USERS_PER_PAGE_PARAM")
             usersHandler.handleGetPageOfUsers(context)
           }
+        }) // /api/v1/users
 
-        })
-      })
+      }) // /api/v1
     }
 
     server
