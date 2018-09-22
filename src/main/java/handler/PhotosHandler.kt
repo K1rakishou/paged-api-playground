@@ -11,6 +11,7 @@ class PhotosHandler(
 ) : BaseHandler() {
 
   private val defaultPhotosPerPage = 20
+  private val maxPhotosPerPage = 100
 
   fun handleGetPageOfPhotos(routingContext: RoutingContext) {
     handlerAsync(routingContext) { context ->
@@ -33,7 +34,9 @@ class PhotosHandler(
 
       val photosPerPageParam: String? = context.request().getParam(PHOTOS_PER_PAGE_PARAM)
       val photosPerPage = try {
-        photosPerPageParam?.toInt() ?: defaultPhotosPerPage
+        photosPerPageParam
+          ?.toInt()
+          ?.coerceIn(defaultPhotosPerPage, maxPhotosPerPage) ?: defaultPhotosPerPage
       } catch (error: NumberFormatException) {
         defaultPhotosPerPage
       }

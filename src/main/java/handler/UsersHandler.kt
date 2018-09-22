@@ -10,10 +10,42 @@ class UsersHandler(
 ) : BaseHandler() {
 
   private val defaultUsersPerPage = 20
+  private val maxUsersPerPage = 100
 
   fun handleGetPageOfUsers(routingContext: RoutingContext) {
     handlerAsync(routingContext) { context ->
+      val lastUserIdParam: String? = context.request().getParam(LAST_USER_ID_PARAM)
+      if (lastUserIdParam == null) {
+        sendBadRequest(context, "No page number in the request")
+        return@handlerAsync
+      }
 
+      val lastUserId = try {
+        lastUserIdParam.toLong()
+      } catch (error: NumberFormatException) {
+        -1L
+      }
+
+      if (lastUserId < 0L) {
+        sendBadRequest(context, "Could not parse parameter page")
+        return@handlerAsync
+      }
+
+      val usersPerPageParam: String? = context.request().getParam(USERS_PER_PAGE_PARAM)
+      val usersPerPage = try {
+        usersPerPageParam
+          ?.toInt()
+          ?.coerceIn(defaultUsersPerPage, maxUsersPerPage) ?: defaultUsersPerPage
+      } catch (error: NumberFormatException) {
+        defaultUsersPerPage
+      }
+
+      val users = repository.getPageOfUsers(lastUserId, usersPerPage).await()
+      val jsonResult = jsonConverter.toJson(users).await()
+
+      jsonResult
+        .doWhenOk { json -> sendJsonResponse(context, json) }
+        .doWhenError { error -> sendErrorResponse(context, error) }
     }
   }
 
