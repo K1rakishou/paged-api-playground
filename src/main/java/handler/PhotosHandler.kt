@@ -1,7 +1,6 @@
 package handler
 
 import data.repository.Repository
-import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.RoutingContext
 import service.JsonConverter
 import java.lang.NumberFormatException
@@ -9,16 +8,16 @@ import java.lang.NumberFormatException
 class PhotosHandler(
   private val repository: Repository,
   private val jsonConverter: JsonConverter
-) : BaseHandler(HttpMethod.GET) {
+) : BaseHandler() {
 
-  private val defaultItemsPerPage = 20
+  private val defaultPhotosPerPage = 20
 
-  suspend fun handleGetPageOfPhotos(routingContext: RoutingContext) {
-    handleExceptions(routingContext) { context ->
+  fun handleGetPageOfPhotos(routingContext: RoutingContext) {
+    handlerAsync(routingContext) { context ->
       val lastPhotoIdParam: String? = context.request().getParam("last_photo_id")
       if (lastPhotoIdParam == null) {
         sendBadRequest(context, "No page number in the request")
-        return@handleExceptions
+        return@handlerAsync
       }
 
       val lastPhotoId = try {
@@ -29,29 +28,34 @@ class PhotosHandler(
 
       if (lastPhotoId == -1L) {
         sendBadRequest(context, "Could not parse parameter page")
-        return@handleExceptions
+        return@handlerAsync
       }
 
       val photosPerPageParam: String? = context.request().getParam("photos_per_page")
       val photosPerPage = try {
-        photosPerPageParam?.toInt() ?: defaultItemsPerPage
+        photosPerPageParam?.toInt() ?: defaultPhotosPerPage
       } catch (error: NumberFormatException) {
-        defaultItemsPerPage
+        defaultPhotosPerPage
       }
 
       val photos = repository.getPageOfPhotos(lastPhotoId, photosPerPage).await()
-      val json = jsonConverter.toJson(photos)
+      val jsonResult = jsonConverter.toJson(photos).await()
 
-      sendJson(context, json)
+      jsonResult
+        .doWhenOk { json -> sendJsonResponse(context, json) }
+        .doWhenError { error -> sendErrorResponse(context, error) }
+
     }
   }
 
-  suspend fun handleGetAllPhotos(routingContext: RoutingContext) {
-    handleExceptions(routingContext) { context ->
+  fun handleGetAllPhotos(routingContext: RoutingContext) {
+    handlerAsync(routingContext) { context ->
       val photos = repository.getAllPhotos().await()
-      val json = jsonConverter.toJson(photos)
+      val jsonResult = jsonConverter.toJson(photos).await()
 
-      sendJson(context, json)
+      jsonResult
+        .doWhenOk { json -> sendJsonResponse(context, json) }
+        .doWhenError { error -> sendErrorResponse(context, error) }
     }
   }
 }
