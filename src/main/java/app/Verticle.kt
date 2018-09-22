@@ -3,6 +3,7 @@ package app
 import handler.*
 import handler.CommentsHandler.Companion.COMMENTS_PER_PAGE_PARAM
 import handler.CommentsHandler.Companion.LAST_COMMENT_ID_PARAM
+import handler.CommentsHandler.Companion.USER_ID_PARAM
 import handler.PhotosHandler.Companion.LAST_PHOTO_ID_PARAM
 import handler.PhotosHandler.Companion.PHOTOS_PER_PAGE_PARAM
 import handler.UsersHandler.Companion.LAST_USER_ID_PARAM
@@ -77,6 +78,14 @@ class Verticle(
           commentsRouter.get("/").handler { context ->
             println("get /comments")
             commentsHandler.handleGetAllComments(context)
+          }
+          commentsRouter.get("/").handler { context ->
+            println("get /comments?user_id")
+            commentsHandler.handleGetAllCommentsByUserId(context)
+          }
+          commentsRouter.get("/").handler { context ->
+            println("get /comments?user_id&last_comment_id&comments_per_page")
+            commentsHandler.handleGetPageOfCommentsByUserId(context)
           }
           commentsRouter.get("/:$LAST_COMMENT_ID_PARAM").handler { context ->
             println("get /comments/:$LAST_COMMENT_ID_PARAM")

@@ -5,6 +5,7 @@ import data.model.Photo
 import data.model.User
 import kotlinx.coroutines.experimental.Deferred
 import service.HikariService
+import java.sql.PreparedStatement
 
 class Repository(
   hikariService: HikariService
@@ -106,6 +107,52 @@ class Repository(
     return repoAsync { connection ->
       connection.prepareStatement("SELECT * FROM comments").use { statement ->
         val comments = mutableListOf<Comment>()
+
+        statement.executeQuery().use { rs ->
+          while (rs.next()) {
+            comments += Comment(
+              rs.getLong("comment_id"),
+              rs.getLong("user_id"),
+              rs.getLong("photo_id"),
+              rs.getString("message")
+            )
+          }
+        }
+
+        return@use comments
+      }
+    }
+  }
+
+  suspend fun getAllCommentsByUserId(userId: Long): Deferred<List<Comment>> {
+    return repoAsync { connection ->
+      connection.prepareStatement("SELECT * FROM comments WHERE user_id = ?").use { statement ->
+        val comments = mutableListOf<Comment>()
+        statement.setLong(1, userId)
+
+        statement.executeQuery().use { rs ->
+          while (rs.next()) {
+            comments += Comment(
+              rs.getLong("comment_id"),
+              rs.getLong("user_id"),
+              rs.getLong("photo_id"),
+              rs.getString("message")
+            )
+          }
+        }
+
+        return@use comments
+      }
+    }
+  }
+
+  suspend fun getPageOfCommentsByUserId(lastCommentId: Long, userId: Long, commentsPerPage: Int): Deferred<List<Comment>> {
+    return repoAsync { connection ->
+      connection.prepareStatement("SELECT * FROM comments WHERE comment_id > ? AND user_id = ? LIMIT ?").use { statement ->
+        val comments = mutableListOf<Comment>()
+        statement.setLong(1, lastCommentId)
+        statement.setLong(2, userId)
+        statement.setInt(3, commentsPerPage)
 
         statement.executeQuery().use { rs ->
           while (rs.next()) {

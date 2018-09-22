@@ -15,30 +15,15 @@ class PhotosHandler(
 
   fun handleGetPageOfPhotos(routingContext: RoutingContext) {
     handlerAsync(routingContext) { context ->
-      val lastPhotoIdParam: String? = context.request().getParam(LAST_PHOTO_ID_PARAM)
-      if (lastPhotoIdParam == null) {
-        sendBadRequest(context, "No page number in the request")
+      val lastPhotoId = tryParseLongRequestParamOrNull(context, LAST_PHOTO_ID_PARAM)
+      if (lastPhotoId == null) {
+        sendBadRequest(context, "Bad parameter $LAST_PHOTO_ID_PARAM: $lastPhotoId")
         return@handlerAsync
       }
 
-      val lastPhotoId = try {
-        lastPhotoIdParam.toLong()
-      } catch (error: NumberFormatException) {
-        -1L
-      }
-
-      if (lastPhotoId < 0L) {
-        sendBadRequest(context, "Could not parse parameter page")
-        return@handlerAsync
-      }
-
-      val photosPerPage = try {
-        context.request().getParam(PHOTOS_PER_PAGE_PARAM)
-          ?.toInt()
-          ?.coerceIn(0, maxPhotosPerPage) ?: defaultPhotosPerPage
-      } catch (error: NumberFormatException) {
-        defaultPhotosPerPage
-      }
+      val photosPerPage = tryParseIntRequestParamOrNull(context, PHOTOS_PER_PAGE_PARAM)
+        ?.coerceIn(0, maxPhotosPerPage)
+        ?: defaultPhotosPerPage
 
       val photos = repository.getPageOfPhotos(lastPhotoId, photosPerPage).await()
       val jsonResult = jsonConverter.toJson(photos).await()

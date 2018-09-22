@@ -5,6 +5,7 @@ import io.vertx.ext.web.RoutingContext
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.launch
+import java.lang.RuntimeException
 import kotlin.coroutines.experimental.CoroutineContext
 
 abstract class BaseHandler : CoroutineScope {
@@ -49,5 +50,88 @@ abstract class BaseHandler : CoroutineScope {
         sendErrorResponse(routingContext, error)
       }
     }
+  }
+
+  protected fun containsQueryParams(routingContext: RoutingContext, vararg queryParamNames: String): Boolean {
+    val queryParams = routingContext.queryParams()
+    if (queryParams.size() != queryParamNames.size) {
+      return false
+    }
+
+    for (queryParam in queryParamNames) {
+      if (!queryParams.contains(queryParam)) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  protected fun tryParseLongQueryParamOrNull(routingContext: RoutingContext, paramName: String): Long? {
+    if (routingContext.queryParam(paramName)?.size ?: 0 > 1) {
+      throw RuntimeException("More than one parameter in the query with the same name $paramName")
+    }
+
+    val paramString: String? = routingContext.queryParam(paramName)?.firstOrNull()
+    if (paramString == null) {
+      return null
+    }
+
+    val paramLong = try {
+      paramString.toLong()
+    } catch (error: NumberFormatException) {
+      null
+    }
+
+    return paramLong
+  }
+
+  protected fun tryParseLongRequestParamOrNull(routingContext: RoutingContext, paramName: String): Long? {
+    val paramString: String? = routingContext.request().getParam(paramName)
+    if (paramString == null) {
+      return null
+    }
+
+    val paramLong = try {
+      paramString.toLong()
+    } catch (error: NumberFormatException) {
+      null
+    }
+
+    return paramLong
+  }
+
+  protected fun tryParseIntQueryParamOrNull(routingContext: RoutingContext, paramName: String): Int? {
+    if (routingContext.queryParam(paramName)?.size ?: 0 > 1) {
+      throw RuntimeException("More than one parameter in the query with the same name $paramName")
+    }
+
+    val paramString: String? = routingContext.queryParam(paramName)?.firstOrNull()
+    if (paramString == null) {
+      return null
+    }
+
+    val paramInt = try {
+      paramString.toInt()
+    } catch (error: NumberFormatException) {
+      null
+    }
+
+    return paramInt
+  }
+
+  protected fun tryParseIntRequestParamOrNull(routingContext: RoutingContext, paramName: String): Int? {
+    val paramString: String? = routingContext.request().getParam(paramName)
+    if (paramString == null) {
+      return null
+    }
+
+    val paramInt = try {
+      paramString.toInt()
+    } catch (error: NumberFormatException) {
+      null
+    }
+
+    return paramInt
   }
 }

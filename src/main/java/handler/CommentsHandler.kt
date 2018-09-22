@@ -14,30 +14,15 @@ class CommentsHandler(
 
   fun handleGetPageOfComments(routingContext: RoutingContext) {
     handlerAsync(routingContext) { context ->
-      val lastCommentIdParam: String? = context.request().getParam(LAST_COMMENT_ID_PARAM)
-      if (lastCommentIdParam == null) {
-        sendBadRequest(context, "No page number in the request")
+      val lastCommentId = tryParseLongRequestParamOrNull(routingContext, LAST_COMMENT_ID_PARAM)
+      if (lastCommentId == null) {
+        sendBadRequest(context, "Bad parameter $LAST_COMMENT_ID_PARAM: $lastCommentId")
         return@handlerAsync
       }
 
-      val lastCommentId = try {
-        lastCommentIdParam.toLong()
-      } catch (error: NumberFormatException) {
-        -1L
-      }
-
-      if (lastCommentId < 0L) {
-        sendBadRequest(context, "Could not parse parameter page")
-        return@handlerAsync
-      }
-
-      val commentsPerPage = try {
-        context.request().getParam(COMMENTS_PER_PAGE_PARAM)
-          ?.toInt()
-          ?.coerceIn(0, maxCommentsPerPage) ?: defaultCommentsPerPage
-      } catch (error: NumberFormatException) {
-        defaultCommentsPerPage
-      }
+      val commentsPerPage = tryParseIntRequestParamOrNull(routingContext, COMMENTS_PER_PAGE_PARAM)
+        ?.coerceIn(0, maxCommentsPerPage)
+        ?: defaultCommentsPerPage
 
       val comments = repository.getPageOfComments(lastCommentId, commentsPerPage).await()
       val jsonResult = jsonConverter.toJson(comments).await()
@@ -50,7 +35,66 @@ class CommentsHandler(
 
   fun handleGetAllComments(routingContext: RoutingContext) {
     handlerAsync(routingContext) { context ->
+      if (!context.queryParams().isEmpty) {
+        context.next()
+        return@handlerAsync
+      }
+
       val comments = repository.getAllComments().await()
+      val jsonResult = jsonConverter.toJson(comments).await()
+
+      jsonResult
+        .doWhenOk { json -> sendJsonResponse(context, json) }
+        .doWhenError { error -> sendErrorResponse(context, error) }
+    }
+  }
+
+  fun handleGetAllCommentsByUserId(routingContext: RoutingContext) {
+    handlerAsync(routingContext) { context ->
+      if (!containsQueryParams(context, USER_ID_PARAM)) {
+        context.next()
+        return@handlerAsync
+      }
+
+      val userId = tryParseLongRequestParamOrNull(routingContext, USER_ID_PARAM)
+      if (userId == null) {
+        sendBadRequest(context, "Bad parameter $USER_ID_PARAM: $userId")
+        return@handlerAsync
+      }
+
+      val comments = repository.getAllCommentsByUserId(userId).await()
+      val jsonResult = jsonConverter.toJson(comments).await()
+
+      jsonResult
+        .doWhenOk { json -> sendJsonResponse(context, json) }
+        .doWhenError { error -> sendErrorResponse(context, error) }
+    }
+  }
+
+  fun handleGetPageOfCommentsByUserId(routingContext: RoutingContext) {
+    handlerAsync(routingContext) { context ->
+      if (!containsQueryParams(context, USER_ID_PARAM, LAST_COMMENT_ID_PARAM, COMMENTS_PER_PAGE_PARAM)) {
+        context.next()
+        return@handlerAsync
+      }
+
+      val userId = tryParseLongQueryParamOrNull(context, USER_ID_PARAM)
+      if (userId == null) {
+        sendBadRequest(context, "Bad parameter $USER_ID_PARAM: $userId")
+        return@handlerAsync
+      }
+
+      val lastCommentId = tryParseLongQueryParamOrNull(context, LAST_COMMENT_ID_PARAM)
+      if (lastCommentId == null) {
+        sendBadRequest(context, "Bad parameter $LAST_COMMENT_ID_PARAM: $lastCommentId")
+        return@handlerAsync
+      }
+
+      val commentsPerPage = tryParseIntQueryParamOrNull(context, COMMENTS_PER_PAGE_PARAM)
+        ?.coerceIn(0, maxCommentsPerPage)
+        ?: defaultCommentsPerPage
+
+      val comments = repository.getPageOfCommentsByUserId(lastCommentId, userId, commentsPerPage).await()
       val jsonResult = jsonConverter.toJson(comments).await()
 
       jsonResult
@@ -62,5 +106,6 @@ class CommentsHandler(
   companion object {
     const val LAST_COMMENT_ID_PARAM = "last_comment_id"
     const val COMMENTS_PER_PAGE_PARAM = "comments_per_page"
+    const val USER_ID_PARAM = "user_id"
   }
 }

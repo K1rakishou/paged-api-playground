@@ -60,7 +60,7 @@ class DataGenerator(
             "(" +
             "   user_id BIGINT NOT NULL AUTO_INCREMENT, " +
             "   PRIMARY KEY (user_id)" +
-            ")")
+            ");")
 
         statement.execute(
           "CREATE TABLE IF NOT EXISTS photos " +
@@ -69,8 +69,9 @@ class DataGenerator(
             "   user_id BIGINT NOT NULL, " +
             "   photo_name VARCHAR(32) NOT NULL, " +
             "   FOREIGN KEY (user_id) REFERENCES users(user_id) on delete cascade, " +
-            "   PRIMARY KEY (photo_id)" +
-            ")")
+            "   PRIMARY KEY (photo_id) " +
+            "); " +
+            "CREATE INDEX user_id ON photos(user_id);")
 
         statement.execute(
           "CREATE TABLE IF NOT EXISTS comments " +
@@ -82,7 +83,8 @@ class DataGenerator(
             "   FOREIGN KEY (user_id) REFERENCES users(user_id) on delete cascade, " +
             "   FOREIGN KEY (photo_id) REFERENCES photos(photo_id) on delete cascade, " +
             "   PRIMARY KEY (comment_id)" +
-            ")")
+            "); " +
+            "CREATE INDEX photo_id ON comments(photo_id);")
       }
     }
   }
