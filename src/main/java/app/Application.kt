@@ -65,6 +65,8 @@ fun main(args: Array<String>) {
       println("Get All Users - http://127.0.0.1:8080/api/v1/users")
       println("Get page of users starting from a users with id = n + 1 - http://127.0.0.1:8080/api/v1/users/1")
       println("Get page of users (n count when n max is UsersHandler.defaultUsersPerPage) starting from a user with id = m + 1 - http://127.0.0.1:8080/api/v1/users/1/5")
+
+      println("\n\n")
     } else {
       println("Could not start server")
       result.cause().printStackTrace()

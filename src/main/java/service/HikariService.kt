@@ -14,7 +14,7 @@ class HikariService {
   init {
     Class.forName("org.h2.Driver")
 
-    config.jdbcUrl = "jdbc:h2:~/test"
+    config.jdbcUrl = "jdbc:h2:mem:test"
     config.username = "sa"
     config.password = ""
     ds = HikariDataSource(config)

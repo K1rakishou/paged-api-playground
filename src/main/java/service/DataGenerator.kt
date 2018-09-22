@@ -55,8 +55,6 @@ class DataGenerator(
   private fun createDatabase() {
     hikariService.getConnection().use { connection ->
       connection.createStatement().use { statement ->
-        statement.execute("DROP ALL OBJECTS DELETE FILES")
-
         statement.execute(
           "CREATE TABLE IF NOT EXISTS users " +
             "(" +
