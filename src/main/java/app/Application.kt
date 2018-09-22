@@ -58,17 +58,17 @@ fun main(args: Array<String>) {
       println("- Photo commands")
       println("Get All Photos - http://127.0.0.1:8080/api/v1/photos")
       println("Get page of photos starting from a photo with id = n + 1 - http://127.0.0.1:8080/api/v1/photos/10")
-      println("Get page of photos (n count when n max is PhotosHandler.defaultPhotosPerPage) starting from a photo with id = m + 1 - http://127.0.0.1:8080/api/v1/photos/10/5")
+      println("Get page of photos (n count when n is in range 0..PhotosHandler.maxPhotosPerPage) starting from a photo with id = m + 1 - http://127.0.0.1:8080/api/v1/photos/10/5")
 
       println("- User commands")
       println("Get All Users - http://127.0.0.1:8080/api/v1/users")
       println("Get page of users starting from a user with id = n + 1 - http://127.0.0.1:8080/api/v1/users/1")
-      println("Get page of users (n count when n max is UsersHandler.defaultUsersPerPage) starting from a user with id = m + 1 - http://127.0.0.1:8080/api/v1/users/1/5")
+      println("Get page of users (n count when n max is in range 0..UsersHandler.maxUsersPerPage) starting from a user with id = m + 1 - http://127.0.0.1:8080/api/v1/users/1/5")
 
       println("- Comment commands")
       println("Get All Comments - http://127.0.0.1:8080/api/v1/comments")
       println("Get page of comments starting from a comment with id = n + 1 - http://127.0.0.1:8080/api/v1/comments/100")
-      println("Get page of comments (n count when n max is CommentsHandler.defaultCommentsPerPage) starting from a comment with id = m + 1 - http://127.0.0.1:8080/api/v1/comments/100/50")
+      println("Get page of comments (n count when n max is in range 0..CommentsHandler.maxCommentsPerPage) starting from a comment with id = m + 1 - http://127.0.0.1:8080/api/v1/comments/100/50")
 
       println("\n\n")
     } else {

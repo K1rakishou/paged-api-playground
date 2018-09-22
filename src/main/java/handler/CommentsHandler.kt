@@ -31,9 +31,8 @@ class CommentsHandler(
         return@handlerAsync
       }
 
-      val commentsPerPageParam: String? = context.request().getParam(COMMENTS_PER_PAGE_PARAM)
       val commentsPerPage = try {
-        commentsPerPageParam
+        context.request().getParam(COMMENTS_PER_PAGE_PARAM)
           ?.toInt()
           ?.coerceIn(0, maxCommentsPerPage) ?: defaultCommentsPerPage
       } catch (error: NumberFormatException) {

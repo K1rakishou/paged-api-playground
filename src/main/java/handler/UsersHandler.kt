@@ -31,9 +31,8 @@ class UsersHandler(
         return@handlerAsync
       }
 
-      val usersPerPageParam: String? = context.request().getParam(USERS_PER_PAGE_PARAM)
       val usersPerPage = try {
-        usersPerPageParam
+        context.request().getParam(USERS_PER_PAGE_PARAM)
           ?.toInt()
           ?.coerceIn(0, maxUsersPerPage) ?: defaultUsersPerPage
       } catch (error: NumberFormatException) {

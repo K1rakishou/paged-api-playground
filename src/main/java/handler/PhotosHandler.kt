@@ -32,9 +32,8 @@ class PhotosHandler(
         return@handlerAsync
       }
 
-      val photosPerPageParam: String? = context.request().getParam(PHOTOS_PER_PAGE_PARAM)
       val photosPerPage = try {
-        photosPerPageParam
+        context.request().getParam(PHOTOS_PER_PAGE_PARAM)
           ?.toInt()
           ?.coerceIn(0, maxPhotosPerPage) ?: defaultPhotosPerPage
       } catch (error: NumberFormatException) {
