@@ -12,7 +12,6 @@ class IndexPageHandler : BaseHandler() {
         .putHeader("content-type", "text/html;charset=utf-8")
         .setStatusCode(200)
         .sendFile(indexHtmlPath)
-        .end()
     }
   }
 }

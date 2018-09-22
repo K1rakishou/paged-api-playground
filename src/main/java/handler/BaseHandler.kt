@@ -40,22 +40,14 @@ abstract class BaseHandler : CoroutineScope {
       .end()
   }
 
-  protected fun send200Ok(routingContext: RoutingContext) {
-    handlerAsync(routingContext) { context ->
-      context
-        .response()
-        .setStatusCode(HttpResponseStatus.OK.code())
-        .end()
-    }
-  }
-
   protected fun handlerAsync(routingContext: RoutingContext, block: suspend (context: RoutingContext) -> Unit) {
-    try {
-      launch { block(routingContext) }
-    } catch (error: Throwable) {
-      error.printStackTrace()
-
-      sendErrorResponse(routingContext, error)
+    launch {
+      try {
+        block(routingContext)
+      } catch (error: Throwable) {
+        error.printStackTrace()
+        sendErrorResponse(routingContext, error)
+      }
     }
   }
 }

@@ -14,7 +14,7 @@ class PhotosHandler(
 
   fun handleGetPageOfPhotos(routingContext: RoutingContext) {
     handlerAsync(routingContext) { context ->
-      val lastPhotoIdParam: String? = context.request().getParam("last_photo_id")
+      val lastPhotoIdParam: String? = context.request().getParam(LAST_PHOTO_ID_PARAM)
       if (lastPhotoIdParam == null) {
         sendBadRequest(context, "No page number in the request")
         return@handlerAsync
@@ -26,12 +26,12 @@ class PhotosHandler(
         -1L
       }
 
-      if (lastPhotoId == -1L) {
+      if (lastPhotoId < 0L) {
         sendBadRequest(context, "Could not parse parameter page")
         return@handlerAsync
       }
 
-      val photosPerPageParam: String? = context.request().getParam("photos_per_page")
+      val photosPerPageParam: String? = context.request().getParam(PHOTOS_PER_PAGE_PARAM)
       val photosPerPage = try {
         photosPerPageParam?.toInt() ?: defaultPhotosPerPage
       } catch (error: NumberFormatException) {
@@ -44,7 +44,6 @@ class PhotosHandler(
       jsonResult
         .doWhenOk { json -> sendJsonResponse(context, json) }
         .doWhenError { error -> sendErrorResponse(context, error) }
-
     }
   }
 
@@ -57,5 +56,10 @@ class PhotosHandler(
         .doWhenOk { json -> sendJsonResponse(context, json) }
         .doWhenError { error -> sendErrorResponse(context, error) }
     }
+  }
+
+  companion object {
+    const val LAST_PHOTO_ID_PARAM = "last_photo_id"
+    const val PHOTOS_PER_PAGE_PARAM = "photos_per_page"
   }
 }
