@@ -4,6 +4,8 @@ import com.google.gson.GsonBuilder
 import data.repository.Repository
 import handler.*
 import io.vertx.core.Vertx
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.IO
 import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import service.DataGenerator
 import service.HikariService
@@ -19,13 +21,13 @@ fun main(args: Array<String>) {
   }
 
   val jsonCoroutineDispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
+  val IOCoroutineDispatcher = Dispatchers.IO
 
   val gson = GsonBuilder()
-    .setPrettyPrinting() //TODO: deletme
     .create()
 
   val hikariService = HikariService()
-  val repository = Repository(hikariService)
+  val repository = Repository(hikariService, IOCoroutineDispatcher)
 
   val dataGenerator = DataGenerator(args[0], hikariService, Random())
   val jsonConverter = JsonConverter(gson, jsonCoroutineDispatcher)

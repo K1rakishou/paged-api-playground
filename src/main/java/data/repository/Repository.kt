@@ -3,12 +3,14 @@ package data.repository
 import data.model.Comment
 import data.model.Photo
 import data.model.User
+import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.Deferred
 import service.HikariService
 
 class Repository(
-  hikariService: HikariService
-) : BaseRepository(hikariService) {
+  hikariService: HikariService,
+  coroutineDispatcher: CoroutineDispatcher
+) : BaseRepository(hikariService, coroutineDispatcher) {
 
   /**
    * Photos

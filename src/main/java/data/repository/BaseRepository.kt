@@ -8,11 +8,12 @@ import java.sql.Connection
 import kotlin.coroutines.experimental.CoroutineContext
 
 abstract class BaseRepository(
-  protected val hikariService: HikariService
+  protected val hikariService: HikariService,
+  private val coroutineDispatcher: CoroutineDispatcher
 ) : CoroutineScope {
 
   override val coroutineContext: CoroutineContext
-    get() = Dispatchers.IO
+    get() = coroutineDispatcher
 
   protected suspend fun <T> repoAsync(block: (Connection) -> T): Deferred<T> {
     return async(coroutineContext) {
