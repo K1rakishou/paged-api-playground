@@ -41,7 +41,7 @@ abstract class BaseHandler : CoroutineScope {
       .end()
   }
 
-  protected fun handlerAsync(routingContext: RoutingContext, block: suspend (context: RoutingContext) -> Unit) {
+  protected fun handleAsync(routingContext: RoutingContext, block: suspend (context: RoutingContext) -> Unit) {
     launch {
       try {
         block(routingContext)

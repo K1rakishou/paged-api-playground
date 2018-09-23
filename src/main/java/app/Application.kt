@@ -59,6 +59,7 @@ fun main(args: Array<String>) {
       println("Get All Photos - http://127.0.0.1:8080/api/v1/photos")
       println("Get page of photos starting from a photo with id = n + 1 - http://127.0.0.1:8080/api/v1/photos/10")
       println("Get page of photos starting from a photo with id = lastId + 1 - http://127.0.0.1:8080/api/v1/photos/10/5")
+      println("Get page of photos by certain user starting from a photo with id = lastId + 1 - http://127.0.0.1:8080/api/v1/photos?user_id=2&last_photo_id=0&photos_per_page=15")
 
       println("- User commands")
       println("Get All Users - http://127.0.0.1:8080/api/v1/users")

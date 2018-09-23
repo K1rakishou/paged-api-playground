@@ -13,11 +13,11 @@ class CommentsHandler(
   private val maxCommentsPerPage = 100
 
   fun handleGetPageOfComments(routingContext: RoutingContext) {
-    handlerAsync(routingContext) { context ->
+    handleAsync(routingContext) { context ->
       val lastCommentId = tryParseLongRequestParamOrNull(routingContext, LAST_COMMENT_ID_PARAM)
       if (lastCommentId == null) {
         sendBadRequest(context, "Bad parameter $LAST_COMMENT_ID_PARAM: $lastCommentId")
-        return@handlerAsync
+        return@handleAsync
       }
 
       val commentsPerPage = tryParseIntRequestParamOrNull(routingContext, COMMENTS_PER_PAGE_PARAM)
@@ -34,10 +34,10 @@ class CommentsHandler(
   }
 
   fun handleGetAllComments(routingContext: RoutingContext) {
-    handlerAsync(routingContext) { context ->
+    handleAsync(routingContext) { context ->
       if (!context.queryParams().isEmpty) {
         context.next()
-        return@handlerAsync
+        return@handleAsync
       }
 
       val comments = repository.getAllComments().await()
@@ -50,16 +50,16 @@ class CommentsHandler(
   }
 
   fun handleGetAllCommentsByUserId(routingContext: RoutingContext) {
-    handlerAsync(routingContext) { context ->
+    handleAsync(routingContext) { context ->
       if (!containsQueryParams(context, USER_ID_PARAM)) {
         context.next()
-        return@handlerAsync
+        return@handleAsync
       }
 
       val userId = tryParseLongRequestParamOrNull(routingContext, USER_ID_PARAM)
       if (userId == null) {
         sendBadRequest(context, "Bad parameter $USER_ID_PARAM: $userId")
-        return@handlerAsync
+        return@handleAsync
       }
 
       val comments = repository.getAllCommentsByUserId(userId).await()
@@ -72,22 +72,22 @@ class CommentsHandler(
   }
 
   fun handleGetPageOfCommentsByUserId(routingContext: RoutingContext) {
-    handlerAsync(routingContext) { context ->
+    handleAsync(routingContext) { context ->
       if (!containsQueryParams(context, USER_ID_PARAM, LAST_COMMENT_ID_PARAM, COMMENTS_PER_PAGE_PARAM)) {
         context.next()
-        return@handlerAsync
+        return@handleAsync
       }
 
       val userId = tryParseLongQueryParamOrNull(context, USER_ID_PARAM)
       if (userId == null) {
         sendBadRequest(context, "Bad parameter $USER_ID_PARAM: $userId")
-        return@handlerAsync
+        return@handleAsync
       }
 
       val lastCommentId = tryParseLongQueryParamOrNull(context, LAST_COMMENT_ID_PARAM)
       if (lastCommentId == null) {
         sendBadRequest(context, "Bad parameter $LAST_COMMENT_ID_PARAM: $lastCommentId")
-        return@handlerAsync
+        return@handleAsync
       }
 
       val commentsPerPage = tryParseIntQueryParamOrNull(context, COMMENTS_PER_PAGE_PARAM)

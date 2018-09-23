@@ -5,7 +5,6 @@ import data.model.Photo
 import data.model.User
 import kotlinx.coroutines.experimental.Deferred
 import service.HikariService
-import java.sql.PreparedStatement
 
 class Repository(
   hikariService: HikariService
@@ -41,6 +40,50 @@ class Repository(
         val photos = mutableListOf<Photo>()
         statement.setLong(1, lastPhotoId)
         statement.setInt(2, photosPerPage)
+
+        statement.executeQuery().use { rs ->
+          while (rs.next()) {
+            photos += Photo(
+              rs.getLong("photo_id"),
+              rs.getLong("user_id"),
+              rs.getString("photo_name")
+            )
+          }
+        }
+
+        return@use photos
+      }
+    }
+  }
+
+  suspend fun getAllPhotosByUserId(userId: Long): Deferred<List<Photo>> {
+    return repoAsync { connection ->
+      connection.prepareStatement("SELECT * FROM photos WHERE user_id = ?").use { statement ->
+        val photos = mutableListOf<Photo>()
+        statement.setLong(1, userId)
+
+        statement.executeQuery().use { rs ->
+          while (rs.next()) {
+            photos += Photo(
+              rs.getLong("photo_id"),
+              rs.getLong("user_id"),
+              rs.getString("photo_name")
+            )
+          }
+        }
+
+        return@use photos
+      }
+    }
+  }
+
+  suspend fun getPageOfPhotosByUserId(lastPhotoId: Long, userId: Long, photosPerPage: Int): Deferred<List<Photo>> {
+    return repoAsync { connection ->
+      connection.prepareStatement("SELECT * FROM photos WHERE photo_id > ? AND user_id = ? LIMIT ?").use { statement ->
+        val photos = mutableListOf<Photo>()
+        statement.setLong(1, lastPhotoId)
+        statement.setLong(2, userId)
+        statement.setInt(3, photosPerPage)
 
         statement.executeQuery().use { rs ->
           while (rs.next()) {

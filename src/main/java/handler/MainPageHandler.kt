@@ -6,7 +6,7 @@ import io.vertx.ext.web.RoutingContext
 class MainPageHandler : BaseHandler() {
 
   fun rerouteToIndexPage(routingContext: RoutingContext) {
-    handlerAsync(routingContext) { context ->
+    handleAsync(routingContext) { context ->
       context
         .reroute(HttpMethod.GET, "/index.html")
     }

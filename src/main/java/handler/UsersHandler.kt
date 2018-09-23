@@ -13,11 +13,11 @@ class UsersHandler(
   private val maxUsersPerPage = 100
 
   fun handleGetPageOfUsers(routingContext: RoutingContext) {
-    handlerAsync(routingContext) { context ->
+    handleAsync(routingContext) { context ->
       val lastUserId = tryParseLongRequestParamOrNull(context, LAST_USER_ID_PARAM)
       if (lastUserId == null) {
         sendBadRequest(context, "Bad parameter $LAST_USER_ID_PARAM: $lastUserId")
-        return@handlerAsync
+        return@handleAsync
       }
 
       val usersPerPage = tryParseIntRequestParamOrNull(context, USERS_PER_PAGE_PARAM)
@@ -34,7 +34,7 @@ class UsersHandler(
   }
 
   fun handleGetAllUsers(routingContext: RoutingContext) {
-    handlerAsync(routingContext) {
+    handleAsync(routingContext) {
       val users = repository.getAllUsers().await()
       val jsonResult = jsonConverter.toJson(users).await()
 

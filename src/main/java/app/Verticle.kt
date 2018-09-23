@@ -47,6 +47,14 @@ class Verticle(
             println("get /photos")
             photosHandler.handleGetAllPhotos(context)
           }
+          photosRouter.get("/").handler { context ->
+            println("get /photos?user_id")
+            photosHandler.handleGetAllPhotosByUserId(context)
+          }
+          photosRouter.get("/").handler { context ->
+            println("get /photos?user_id&last_photo_id&photos_per_page")
+            photosHandler.handleGetPageOfPhotosByUserId(context)
+          }
           photosRouter.get("/:$LAST_PHOTO_ID_PARAM").handler { context ->
             println("get /photos/:$LAST_PHOTO_ID_PARAM")
             photosHandler.handleGetPageOfPhotos(context)
