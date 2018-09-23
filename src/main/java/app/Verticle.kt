@@ -3,9 +3,9 @@ package app
 import handler.*
 import handler.CommentsHandler.Companion.COMMENTS_PER_PAGE_PARAM
 import handler.CommentsHandler.Companion.LAST_COMMENT_ID_PARAM
-import handler.CommentsHandler.Companion.USER_ID_PARAM
 import handler.PhotosHandler.Companion.LAST_PHOTO_ID_PARAM
 import handler.PhotosHandler.Companion.PHOTOS_PER_PAGE_PARAM
+import handler.PhotosHandler.Companion.PHOTO_NAME_PARAM
 import handler.UsersHandler.Companion.LAST_USER_ID_PARAM
 import handler.UsersHandler.Companion.USERS_PER_PAGE_PARAM
 import io.vertx.ext.web.Router
@@ -43,6 +43,10 @@ class Verticle(
       baseRouter.mountSubRouter("/api/v1", Router.router(vertx).also { routerV1 ->
         // /api/v1/photos
         routerV1.mountSubRouter("/photos", Router.router(vertx).also { photosRouter ->
+          photosRouter.get("/file/:$PHOTO_NAME_PARAM").handler { context ->
+            println("get /photos/file/:$PHOTO_NAME_PARAM")
+            photosHandler.handleGetPhotoFile(context)
+          }
           photosRouter.get("/").handler { context ->
             println("get /photos")
             photosHandler.handleGetAllPhotos(context)

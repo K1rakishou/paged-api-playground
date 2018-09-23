@@ -8,10 +8,7 @@ class IndexPageHandler : BaseHandler() {
 
   fun showIndexPage(routingContext: RoutingContext) {
     handleAsync(routingContext) { context ->
-      context.response()
-        .putHeader("content-type", "text/html;charset=utf-8")
-        .setStatusCode(200)
-        .sendFile(indexHtmlPath)
+      sendHtmlPage(context, indexHtmlPath)
     }
   }
 }

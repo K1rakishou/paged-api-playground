@@ -41,6 +41,13 @@ abstract class BaseHandler : CoroutineScope {
       .end()
   }
 
+  protected fun sendNotFound(routingContext: RoutingContext) {
+    routingContext
+      .response()
+      .setStatusCode(HttpResponseStatus.NOT_FOUND.code())
+      .end()
+  }
+
   protected fun handleAsync(routingContext: RoutingContext, block: suspend (context: RoutingContext) -> Unit) {
     launch {
       try {
@@ -50,6 +57,22 @@ abstract class BaseHandler : CoroutineScope {
         sendErrorResponse(routingContext, error)
       }
     }
+  }
+
+  protected fun sendHtmlPage(routingContext: RoutingContext, fileName: String) {
+    routingContext.response()
+      .setChunked(true)
+      .putHeader("content-type", "text/html;charset=utf-8")
+      .setStatusCode(200)
+      .sendFile(fileName)
+  }
+
+  protected fun sendPhoto(routingContext: RoutingContext, fileName: String) {
+    routingContext.response()
+      .setChunked(true)
+      .putHeader("content-type", "image/png")
+      .setStatusCode(200)
+      .sendFile(fileName)
   }
 
   protected fun containsQueryParams(routingContext: RoutingContext, vararg queryParamNames: String): Boolean {

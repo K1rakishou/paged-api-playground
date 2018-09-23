@@ -67,11 +67,12 @@ class DataGenerator(
             "(" +
             "   photo_id BIGINT NOT NULL AUTO_INCREMENT, " +
             "   user_id BIGINT NOT NULL, " +
-            "   photo_name VARCHAR(32) NOT NULL, " +
+            "   photo_name VARCHAR(70) NOT NULL, " +
             "   FOREIGN KEY (user_id) REFERENCES users(user_id) on delete cascade, " +
             "   PRIMARY KEY (photo_id) " +
             "); " +
-            "CREATE INDEX user_id ON photos(user_id);")
+            "CREATE INDEX user_id ON photos(user_id); " +
+            "CREATE INDEX photo_name ON photos(photo_name);")
 
         statement.execute(
           "CREATE TABLE IF NOT EXISTS comments " +
@@ -160,7 +161,7 @@ class DataGenerator(
         val photosToGenerate = Math.abs(random.nextInt(photosPerUserMax))
 
         for (photoIndex in 0L until photosToGenerate) {
-          val photoNameLen = Math.abs(random.nextInt(15)) + 5
+          val photoNameLen = Math.abs(random.nextInt(45)) + 15
           val photoName = StringUtils.generateRandomString(photoNameLen) + ".png"
 
           val photoId = createPhoto(connection, Photo(0, userId, photoName))
@@ -196,7 +197,7 @@ class DataGenerator(
       }
     }
 
-    val outFile = File("${photosInnerDirectory.absolutePath}\\$photoName.png")
+    val outFile = File("${photosInnerDirectory.absolutePath}\\$photoName")
     ImageIO.write(bufferedImage, "png", outFile)
   }
 }

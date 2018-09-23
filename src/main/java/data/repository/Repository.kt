@@ -102,6 +102,27 @@ class Repository(
     }
   }
 
+  suspend fun getPhotoByPhotoName(photoName: String): Deferred<Photo?> {
+    return repoAsync { connection ->
+      connection.prepareStatement("SELECT * FROM photos WHERE photo_name = ? LIMIT 1").use { statement ->
+        var photo: Photo? = null
+        statement.setString(1, photoName)
+
+        statement.executeQuery().use { rs ->
+          if (rs.first()) {
+            photo = Photo(
+              rs.getLong("photo_id"),
+              rs.getLong("user_id"),
+              rs.getString("photo_name")
+            )
+          }
+        }
+
+        return@use photo
+      }
+    }
+  }
+
   /**
    * Users
    * */

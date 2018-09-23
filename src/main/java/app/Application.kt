@@ -23,18 +23,20 @@ fun main(args: Array<String>) {
   val jsonCoroutineDispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
   val IOCoroutineDispatcher = Dispatchers.IO
 
+  val photosDirectory = args[0]
+
   val gson = GsonBuilder()
     .create()
 
   val hikariService = HikariService()
   val repository = Repository(hikariService, IOCoroutineDispatcher)
 
-  val dataGenerator = DataGenerator(args[0], hikariService, Random())
+  val dataGenerator = DataGenerator(photosDirectory, hikariService, Random())
   val jsonConverter = JsonConverter(gson, jsonCoroutineDispatcher)
 
   val mainPageHandler = MainPageHandler()
   val indexPageHandler = IndexPageHandler()
-  val photosHandler = PhotosHandler(repository, jsonConverter)
+  val photosHandler = PhotosHandler(repository, jsonConverter, photosDirectory)
   val usersHandler = UsersHandler(repository, jsonConverter)
   val commentsHandler = CommentsHandler(repository, jsonConverter)
 
@@ -58,6 +60,7 @@ fun main(args: Array<String>) {
       println("List of Commands: ")
 
       println("- Photo commands")
+      println("Get photo file = http://127.0.0.1:8080/api/v1/photos/file/photoname.png")
       println("Get All Photos - http://127.0.0.1:8080/api/v1/photos")
       println("Get page of photos starting from a photo with id = n + 1 - http://127.0.0.1:8080/api/v1/photos/10")
       println("Get page of photos starting from a photo with id = lastId + 1 - http://127.0.0.1:8080/api/v1/photos/10/5")
