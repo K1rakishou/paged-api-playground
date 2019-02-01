@@ -3,6 +3,7 @@ package service
 import data.model.Comment
 import data.model.Photo
 import util.StringUtils
+import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.io.File
 import java.sql.Connection

@@ -4,9 +4,8 @@ import com.google.gson.GsonBuilder
 import data.repository.Repository
 import handler.*
 import io.vertx.core.Vertx
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.IO
-import kotlinx.coroutines.experimental.asCoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import service.DataGenerator
 import service.HikariService
 import service.JsonConverter
@@ -79,7 +78,7 @@ fun main(args: Array<String>) {
 
       println("\n\n")
     } else {
-      println("Could not start server")
+      println("Could not start the server")
       result.cause().printStackTrace()
     }
   }
