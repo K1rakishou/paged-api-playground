@@ -9,6 +9,7 @@ import handler.PhotosHandler.Companion.PHOTO_NAME_PARAM
 import handler.UsersHandler.Companion.LAST_USER_ID_PARAM
 import handler.UsersHandler.Companion.USERS_PER_PAGE_PARAM
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.RoutingContext
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,11 +32,11 @@ class Verticle(
     val server = vertx.createHttpServer()
     val router = Router.router(vertx).also { baseRouter ->
       baseRouter.get("/").handler { context ->
-        println("get /")
+        printRequestInfo("get /", context)
         mainPageHandler.rerouteToIndexPage(context)
       }
       baseRouter.get("/index.html").handler { context ->
-        println("get /index.html")
+        printRequestInfo("get /index.html", context)
         indexPageHandler.showIndexPage(context)
       }
 
@@ -44,27 +45,27 @@ class Verticle(
         // /api/v1/photos
         routerV1.mountSubRouter("/photos", Router.router(vertx).also { photosRouter ->
           photosRouter.get("/file/:$PHOTO_NAME_PARAM").handler { context ->
-            println("get /photos/file/:$PHOTO_NAME_PARAM")
+            printRequestInfo("get /photos/file/:$PHOTO_NAME_PARAM", context)
             photosHandler.handleGetPhotoFile(context)
           }
           photosRouter.get("/").handler { context ->
-            println("get /photos")
+            printRequestInfo("get /photos", context)
             photosHandler.handleGetAllPhotos(context)
           }
           photosRouter.get("/").handler { context ->
-            println("get /photos?user_id")
+            printRequestInfo("get /photos?user_id", context)
             photosHandler.handleGetAllPhotosByUserId(context)
           }
           photosRouter.get("/").handler { context ->
-            println("get /photos?user_id&last_photo_id&photos_per_page")
+            printRequestInfo("get /photos?user_id&last_photo_id&photos_per_page", context)
             photosHandler.handleGetPageOfPhotosByUserId(context)
           }
           photosRouter.get("/:$LAST_PHOTO_ID_PARAM").handler { context ->
-            println("get /photos/:$LAST_PHOTO_ID_PARAM")
+            printRequestInfo("get /photos/:$LAST_PHOTO_ID_PARAM", context)
             photosHandler.handleGetPageOfPhotos(context)
           }
           photosRouter.get("/:$LAST_PHOTO_ID_PARAM/:$PHOTOS_PER_PAGE_PARAM").handler { context ->
-            println("get /photos/:$LAST_PHOTO_ID_PARAM/:$PHOTOS_PER_PAGE_PARAM")
+            printRequestInfo("get /photos/:$LAST_PHOTO_ID_PARAM/:$PHOTOS_PER_PAGE_PARAM", context)
             photosHandler.handleGetPageOfPhotos(context)
           }
         }) // /api/v1/photos
@@ -72,15 +73,15 @@ class Verticle(
         // /api/v1/users
         routerV1.mountSubRouter("/users", Router.router(vertx).also { usersRouter ->
           usersRouter.get("/").handler { context ->
-            println("get /users")
+            printRequestInfo("get /users", context)
             usersHandler.handleGetAllUsers(context)
           }
           usersRouter.get("/:$LAST_USER_ID_PARAM").handler { context ->
-            println("get /users/:$LAST_USER_ID_PARAM")
+            printRequestInfo("get /users/:$LAST_USER_ID_PARAM", context)
             usersHandler.handleGetPageOfUsers(context)
           }
           usersRouter.get("/:$LAST_USER_ID_PARAM/:$USERS_PER_PAGE_PARAM").handler { context ->
-            println("get /users/:$LAST_USER_ID_PARAM/:$USERS_PER_PAGE_PARAM")
+            printRequestInfo("get /users/:$LAST_USER_ID_PARAM/:$USERS_PER_PAGE_PARAM", context)
             usersHandler.handleGetPageOfUsers(context)
           }
         }) // /api/v1/users
@@ -88,23 +89,23 @@ class Verticle(
         // /api/v1/comments
         routerV1.mountSubRouter("/comments", Router.router(vertx).also { commentsRouter ->
           commentsRouter.get("/").handler { context ->
-            println("get /comments")
+            printRequestInfo("get /comments", context)
             commentsHandler.handleGetAllComments(context)
           }
           commentsRouter.get("/").handler { context ->
-            println("get /comments?user_id")
+            printRequestInfo("get /comments?user_id", context)
             commentsHandler.handleGetAllCommentsByUserId(context)
           }
           commentsRouter.get("/").handler { context ->
-            println("get /comments?user_id&last_comment_id&comments_per_page")
+            printRequestInfo("get /comments?user_id&last_comment_id&comments_per_page", context)
             commentsHandler.handleGetPageOfCommentsByUserId(context)
           }
           commentsRouter.get("/:$LAST_COMMENT_ID_PARAM").handler { context ->
-            println("get /comments/:$LAST_COMMENT_ID_PARAM")
+            printRequestInfo("get /comments/:$LAST_COMMENT_ID_PARAM", context)
             commentsHandler.handleGetPageOfComments(context)
           }
           commentsRouter.get("/:$LAST_COMMENT_ID_PARAM/:$COMMENTS_PER_PAGE_PARAM").handler { context ->
-            println("get /comments/:$LAST_COMMENT_ID_PARAM/:COMMENTS_PER_PAGE_PARAM")
+            printRequestInfo("get /comments/:$LAST_COMMENT_ID_PARAM/:COMMENTS_PER_PAGE_PARAM", context)
             commentsHandler.handleGetPageOfComments(context)
           }
         }) // /api/v1/comments
@@ -120,5 +121,10 @@ class Verticle(
         exception.printStackTrace()
       }
       .listen(8080)
+  }
+
+  private fun printRequestInfo(endPoint: String, context: RoutingContext) {
+    val address = "${context.request().remoteAddress().host()}:${context.request().remoteAddress().port()}"
+    println("request $endPoint from ($address)")
   }
 }

@@ -27,12 +27,16 @@ class PhotosHandler(
         return@handleAsync
       }
 
+      println("lastPhotoId = $lastPhotoId")
+
       val photosPerPage = tryParseIntRequestParamOrNull(context, PHOTOS_PER_PAGE_PARAM)
         ?.coerceIn(0, maxPhotosPerPage)
         ?: defaultPhotosPerPage
 
       val photos = repository.getPageOfPhotos(lastPhotoId, photosPerPage).await()
       val jsonResult = jsonConverter.toJson(photos).await()
+
+      println("found ${photos.size} photos")
 
       jsonResult
         .doWhenOk { json -> sendJsonResponse(context, json) }
